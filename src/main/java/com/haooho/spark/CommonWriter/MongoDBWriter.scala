@@ -17,7 +17,7 @@ object MongoDBWriter{
   def MongoSparkUpsert[D: ClassTag](rdd: RDD[D], writeConfig: WriteConfig): Unit = {
     val mongoConnector = MongoConnector(writeConfig.asOptions)
     rdd.foreachPartition(iter => if (iter.nonEmpty) {
-      var uo: UpdateOptions = new UpdateOptions()
+      val uo: UpdateOptions = new UpdateOptions()
       uo.upsert(true)
       val sk = "_id"
       mongoConnector.withMongoClientDo(c => {

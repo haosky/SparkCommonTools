@@ -52,6 +52,7 @@ object MySQLWriter extends Logging {
         val (name,dType) = x._2
         ps.setObject(inx + 1, unit.get(inx), MySQLGen.doMySQLTypeMapping(dType))
       })
+      logDebug(ps.toString)
       ps.addBatch()
     })
   }

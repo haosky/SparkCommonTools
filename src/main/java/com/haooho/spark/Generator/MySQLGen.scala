@@ -20,7 +20,7 @@ object MySQLGen {
     val flds = schema.fields
     val ntMap = mapNameAndType(schema)
     val moreSize = ntMap.size
-    val nameSets =  flds.map( _.name)
+    val nameSets =  flds.map( "`"+_.name+"`")
     val fieldStr = nameSets.mkString(",")
     val valStr =  List.fill(moreSize)("?").mkString(",")
     val kyStr = nameSets.map(x => s" ${x} = values( ${x})").mkString(",")
