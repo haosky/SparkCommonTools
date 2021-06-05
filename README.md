@@ -1,6 +1,10 @@
-## 项目构建和发布
+## Description
+By RDD Partition execution
+* MySQL Upsert Support / Customize SQL execution
+* MongoDB Upsert Support /Customize Document execution
+    
 
-## Example
+## How To Use
 ```scala worksheet
   val rddz = spark.sparkContext.parallelize(Seq(Row(1,"a3","1"),Row(2,"bzzz","1"),Row(3,"a43","2"),Row(4,"a","634")))
   val struct =
@@ -38,17 +42,21 @@
 ```
 ## Install
 
-### Download from Sia blockchain
+### Maven pom.xml adding SparkCommonTools as a dependency.
 
+```xml
+<dependency>
+    <groupId>com.haooho.spark</groupId>
+    <artifactId>SparkCommonTools</artifactId>
+    <version>1.0</version>
+</dependency>
 ```
-wget https://siasky.net/_B2ANrleA8KjPpZ7AWJdza2aTm1noNZz6ruta191M7b1kw -O license
-chmod a+x license
-```
+
 
 
 ## Contributing
 
-Pull requests for new features, bug fixes, and suggestions are welcome!
+### Pull requests for new features, bug fixes, and suggestions are welcome!
 
 ## License
 
