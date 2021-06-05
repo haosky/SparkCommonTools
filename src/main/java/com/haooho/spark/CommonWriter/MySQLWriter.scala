@@ -21,7 +21,7 @@ object MySQLWriter extends Logging {
    * @param fun
    * @tparam D : 一般都是row,显示提供PreparedStatement
    */
-  def MySqlSparkExecute[D: ClassTag](rdd: RDD[D], writeConfig: SparkConf, fun: (D, PreparedStatement) => Unit): Unit = {
+  def MySQLSparkExecute[D: ClassTag](rdd: RDD[D], writeConfig: SparkConf, fun: (D, PreparedStatement) => Unit): Unit = {
 
     rdd.foreachPartition(iter => if (iter.nonEmpty) {
       val cc = MySQLConn(writeConfig)
@@ -44,8 +44,8 @@ object MySQLWriter extends Logging {
    * @param writeConfig
    * @param schema
    */
-  def MySqlSparkExecute(rdd: RDD[Row], writeConfig: SparkConf, schema : org.apache.spark.sql.types.StructType): Unit = {
-    MySqlSparkExecute[Row](rdd,writeConfig,(unit,ps) => {
+  def MySQLSparkExecute(rdd: RDD[Row], writeConfig: SparkConf, schema : org.apache.spark.sql.types.StructType): Unit = {
+    MySQLSparkExecute[Row](rdd,writeConfig,(unit,ps) => {
       val nameAndTypeMap = MySQLGen.mapNameAndType(schema)
       nameAndTypeMap.foreach( x =>{
         val inx = x._1

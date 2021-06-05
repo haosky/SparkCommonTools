@@ -28,11 +28,11 @@ By RDD Partition execution
     ))
 
     // Implicit execution on partition batch SQL statement
-    MySQLWriter.MySqlSparkExecute(rddz,reConfig,struct)
+    MySQLWriter.MySQLSparkExecute(rddz,reConfig,struct)
 
     // Explicit execution on partition batch SQL statement
     val rddData =  spark.sparkContext.parallelize(Seq((1,"a3","1"),(2,"bzzz","1"),(3,"a43","2"),(4,"a","634")))
-    MySQLWriter.MySqlSparkExecute[(Int,String,String)](rddData,reConfig,(unit,ps) => {
+    MySQLWriter.MySQLSparkExecute[(Int,String,String)](rddData,reConfig,(unit,ps) => {
           ps.setInt(1,unit._1)
           ps.setString(2,unit._2)
           ps.setString(3,unit._3)
