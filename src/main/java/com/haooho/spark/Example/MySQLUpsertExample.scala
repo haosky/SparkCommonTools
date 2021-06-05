@@ -1,9 +1,29 @@
-## 项目构建和发布
+package com.haooho.spark.Example
 
-## Example
-```scala worksheet
-  val rddz = spark.sparkContext.parallelize(Seq(Row(1,"a3","1"),Row(2,"bzzz","1"),Row(3,"a43","2"),Row(4,"a","634")))
-  val struct =
+import org.apache.spark.sql.{Row, SparkSession}
+import com.haooho.spark.CommonWriter.MySQLWriter
+import com.haooho.spark.Generator.MySQLGen
+import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
+
+/**
+  * Created by Keon on 2021/16/04
+  * mysql 按主键更新的spark案例
+  */
+object MySQLUpsertExample {
+
+  def main(args:Array[String]): Unit ={
+    val spark = SparkSession
+      .builder()
+      .appName("MysqlUpsertExample")
+      .master("local[1]")
+      .getOrCreate()
+
+    val table = "tttest111"
+    val mysqlDatabaseName = "icecastle"
+    val ( outMysqlDriverClass, outUsername, outPassword, outMyqlUrl)  = ("com.mysql.cj.jdbc.Driver", "user", "password", s"jdbc:mysql://1.1.1.1:3306/$mysqlDatabaseName?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true")
+
+    val rddz = spark.sparkContext.parallelize(Seq(Row(1,"a3","1"),Row(2,"bzzz","1"),Row(3,"a43","2"),Row(4,"a","634")))
+    val struct =
       StructType(
         StructField("id", IntegerType, true) ::
           StructField("c1", StringType, false) ::
@@ -13,8 +33,7 @@
     val sql = MySQLGen.mkUpsertSql(table ,struct)
     println(sql)
     // INSERT INTO testa (id,c1,c2) VALUES (?,?,?) ON DUPLICATE KEY UPDATE  id = values( id), c1 = values( c1), c2 = values( c2)
-    
-    //写入配置
+
     val reConfig = spark.sparkContext.getConf.setAll(Map(
       "spark.mysql.url" -> outMyqlUrl,
       "spark.mysql.password" -> outPassword,
@@ -35,21 +54,6 @@
 
           ps.addBatch()
       })
-```
-## Install
-
-### Download from Sia blockchain
-
-```
-wget https://siasky.net/_B2ANrleA8KjPpZ7AWJdza2aTm1noNZz6ruta191M7b1kw -O license
-chmod a+x license
-```
-
-
-## Contributing
-
-Pull requests for new features, bug fixes, and suggestions are welcome!
-
-## License
-
-[MIT](https://github.com/haosky/SparkCommonTools/LICENSE)
+    spark.stop()
+  }
+}
