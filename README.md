@@ -13,12 +13,12 @@ By RDD Partition execution
           StructField("c1", StringType, false) ::
           StructField("c2", StringType, false) :: Nil)
 
-    //  生成Sql
+    // generate Sql
     val sql = MySQLGen.mkUpsertSql(table ,struct)
     println(sql)
     // INSERT INTO testa (id,c1,c2) VALUES (?,?,?) ON DUPLICATE KEY UPDATE  id = values( id), c1 = values( c1), c2 = values( c2)
     
-    //写入配置
+    // mapping configuration
     val reConfig = spark.sparkContext.getConf.setAll(Map(
       "spark.mysql.url" -> outMyqlUrl,
       "spark.mysql.password" -> outPassword,
@@ -27,10 +27,10 @@ By RDD Partition execution
       "spark.mysql.driver" -> outMysqlDriverClass
     ))
 
-    // 隐含式按分区批次执行SQL
+    // Implicit execution on partition batch SQL statement
     MySQLWriter.MySqlSparkExecute(rddz,reConfig,struct)
 
-    // 显含式按分区批次执行SQL
+    // Explicit execution on partition batch SQL statement
     val rddData =  spark.sparkContext.parallelize(Seq((1,"a3","1"),(2,"bzzz","1"),(3,"a43","2"),(4,"a","634")))
     MySQLWriter.MySqlSparkExecute[(Int,String,String)](rddData,reConfig,(unit,ps) => {
           ps.setInt(1,unit._1)
