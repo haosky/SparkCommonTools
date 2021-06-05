@@ -71,9 +71,19 @@ object MySQLWriter extends Logging {
     }
   }
 
+  /**
+   *
+   * @param writeConfig
+   */
   case class MySQLConn(writeConfig: SparkConf) extends Logging with Serializable with Closeable {
     var conn: Connection = _
 
+    /**
+     *
+     * @param ps
+     * @tparam T
+     * @return
+     */
     def withMySqlClientDo[T](ps: PreparedStatement => T): T = {
       try {
         val stat = buildStatement(writeConfig)
@@ -83,10 +93,19 @@ object MySQLWriter extends Logging {
       }
     }
 
+    /**
+     *
+     * @param ps
+     */
     def releaseClient(ps: PreparedStatement): Unit = {
       if (ps != null && ps.isClosed) ps.close()
     }
 
+    /**
+     *
+     * @param writeConfig
+     * @return
+     */
     def buildStatement(writeConfig: SparkConf): PreparedStatement = {
       if (conn == null || conn.isClosed) {
         Class.forName(writeConfig.get("spark.mysql.driver")).newInstance()
@@ -98,6 +117,9 @@ object MySQLWriter extends Logging {
       conn.prepareStatement(writeConfig.get("spark.mysql.sql"))
     }
 
+    /**
+     *
+     */
     override def close(): Unit = {
       if (conn != null && !conn.isClosed) conn.close()
     }

@@ -13,7 +13,12 @@ import scala.reflect.ClassTag
   * mysql 插入、 更新 写入工具
   */
 object MongoDBWriter{
-
+  /**
+   * mongodb upsert action
+   * @param rdd
+   * @param writeConfig
+   * @tparam D
+   */
   def MongoSparkUpsert[D: ClassTag](rdd: RDD[D], writeConfig: WriteConfig): Unit = {
     val mongoConnector = MongoConnector(writeConfig.asOptions)
     rdd.foreachPartition(iter => if (iter.nonEmpty) {

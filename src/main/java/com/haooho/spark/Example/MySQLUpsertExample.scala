@@ -11,6 +11,10 @@ import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructT
   */
 object MySQLUpsertExample {
 
+  /**
+   *
+   * @param args
+   */
   def main(args:Array[String]): Unit ={
     val spark = SparkSession
       .builder()
