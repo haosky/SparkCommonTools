@@ -18,6 +18,8 @@ under the License.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.haooho.spark</groupId>
@@ -27,6 +29,15 @@ under the License.
 	<description>spark common tools</description>
 	<url>https://github.com/haosky/SparkCommonTools</url>
 	<name>SparkCommonTools</name>
+
+	<developers>
+		<developer>
+			<name>keonHuang</name>
+			<email>hao18sky@sina.com</email>
+			<organization>https://haooho.com</organization>
+		</developer>
+	</developers>
+
 
 	<licenses>
 		<license>
@@ -96,11 +107,11 @@ under the License.
 	<distributionManagement>
 		<snapshotRepository>
 			<id>ossrh</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+			<url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
 		</snapshotRepository>
 		<repository>
 			<id>ossrh</id>
-			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+			<url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
 	</distributionManagement>
 
