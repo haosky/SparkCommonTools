@@ -60,4 +60,4 @@ By RDD Partition execution
 
 ## License
 
-[MIT](https://github.com/haosky/SparkCommonTools/LICENSE)
+[MIT](https://github.com/haosky/SparkCommonTools/blob/main/LICENSE)
