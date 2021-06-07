@@ -52,6 +52,11 @@ By RDD Partition execution
 </dependency>
 ```
 
+## Please review 
+
+* [Scala API (Scaladoc)](https://apidoc.haooho.com/SparkCommonTools/scaladocs/#package)
+
+* [HomePage](https://haooho.com)
 
 
 ## Contributing
