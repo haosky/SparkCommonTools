@@ -48,7 +48,7 @@ By RDD Partition execution
 <dependency>
     <groupId>com.haooho.spark</groupId>
     <artifactId>SparkCommonTools</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
 </dependency>
 ```
 
