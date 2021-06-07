@@ -52,6 +52,16 @@ By RDD Partition execution
 </dependency>
 ```
 
+### default version of dependencies
+```xml
+<spark.version>2.4.0</spark.version>
+<hadoop.version>3.0.0</hadoop.version>
+<scala.binary.version>2.11</scala.binary.version>
+<scala.library.version>2.11.12</scala.library.version>
+<log4j.version>2.12.1</log4j.version>
+<target.java.version>1.8</target.java.version>
+```
+
 ## Please review 
 
 * [Scala API (Scaladoc)](https://apidoc.haooho.com/SparkCommonTools/scaladocs/#package)
