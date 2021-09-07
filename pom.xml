@@ -41,57 +41,20 @@ under the License.
 		</developer>
 	</developers>
 
-	<scm>
-		<connection>scm:git:git@github.com/haosky/SparkCommonTools.git</connection>
-		<developerConnection>scm:git:git@github.com/haosky/SparkCommonTools.git</developerConnection>
-		<url>https://github.com/haosky/SparkCommonTools</url>
-		<tag>SparkCommonTools-1.0</tag>
-	</scm>
+	 <scm>
+	   <connection>scm:git:git@github.com/haosky/SparkCommonTools.git</connection>
+	   <developerConnection>scm:git:git@github.com/haosky/SparkCommonTools.git</developerConnection>
+		 <url>https://github.com/haosky/SparkCommonTools</url>
+	   <tag>SparkCommonTools-1.0</tag>
+	 </scm>
 
 	<licenses>
 		<license>
 			<name>MIT</name>
-			<url>https://github.com/haosky/SparkCommonTools/LICENSE</url>
+			<url>https://github.com/haosky/SparkCommonTools/blob/main/LICENSE</url>
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
-
-	<reporting>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-site-plugin</artifactId>
-				<version>3.0</version>
-				<configuration>
-					<reportPlugins>
-						<plugin>
-							<artifactId>maven-project-info-reports-plugin</artifactId>
-							<version>2.2</version>
-						</plugin>
-						<plugin>
-							<groupId>net.alchim31.maven</groupId>
-							<artifactId>scala-maven-plugin</artifactId>
-							<version>4.5.2</version>
-							<configuration>
-								<jvmArgs>
-									<jvmArg>-Xms64m</jvmArg>
-									<jvmArg>-Xmx1024m</jvmArg>
-								</jvmArgs>
-								<scaladocClassName>org.scala_tools.vscaladoc.Main</scaladocClassName>
-								<scalaJars>
-									<scalaJar>
-										<groupId>org.scala-tools</groupId>
-										<artifactId>vscaladoc</artifactId>
-										<version>1.0</version>
-									</scalaJar>
-								</scalaJars>
-							</configuration>
-						</plugin>
-					</reportPlugins>
-				</configuration>
-			</plugin>
-		</plugins>
-	</reporting>
 
 	<properties>
 		<spark.version>2.4.0</spark.version>
@@ -146,7 +109,7 @@ under the License.
 		<dependency>
 			<groupId>org.mongodb.spark</groupId>
 			<artifactId>mongo-spark-connector_${scala.binary.version}</artifactId>
-			<version>2.4.3</version>
+			<version>${spark.version}</version>
 			<scope>compile</scope>
 		</dependency>
 	</dependencies>
@@ -216,6 +179,38 @@ under the License.
 					<!-- 禁用java 8 的DocLint新特性，以确保当javadoc有编译错误时，也能正常生成javadoc jar包-->
 					<doclint>none</doclint>
 					<source>1.8</source>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-site-plugin</artifactId>
+				<version>3.0</version>
+				<configuration>
+					<reportPlugins>
+						<plugin>
+							<artifactId>maven-project-info-reports-plugin</artifactId>
+							<version>2.2</version>
+						</plugin>
+						<plugin>
+							<groupId>net.alchim31.maven</groupId>
+							<artifactId>scala-maven-plugin</artifactId>
+							<version>4.5.2</version>
+							<configuration>
+								<jvmArgs>
+									<jvmArg>-Xms64m</jvmArg>
+									<jvmArg>-Xmx1024m</jvmArg>
+								</jvmArgs>
+								<scaladocClassName>org.scala_tools.vscaladoc.Main</scaladocClassName>
+								<scalaJars>
+									<scalaJar>
+										<groupId>org.scala-tools</groupId>
+										<artifactId>vscaladoc</artifactId>
+										<version>1.0</version>
+									</scalaJar>
+								</scalaJars>
+							</configuration>
+						</plugin>
+					</reportPlugins>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -329,7 +324,7 @@ under the License.
 		</pluginManagement>
 	</build>
 
-	<repositories>
+<repositories>
 
 	</repositories>
 </project>
