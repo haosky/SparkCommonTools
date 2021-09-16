@@ -4,15 +4,17 @@ import com.haooho.spark.Generator.MySQLGen
 import org.apache.spark.SparkConf
 import org.apache.spark.internal.Logging
 import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.Row
+
 import java.io.{Closeable, Serializable}
 import java.sql.{Connection, DriverManager, PreparedStatement}
 import scala.reflect.ClassTag
-import org.apache.spark.sql.Row
+
 /**
  * Created by haooho-Keon on 2018/11/30
  * mysql 写入工具, 注入sql的方式，基于RDD Action 操作SQL update Statement。 upsert/insert/update/delete 等等..
  */
-object MySQLWriter extends Logging {
+object ClickHouseWriter extends Logging {
 
   /**
    *
@@ -26,13 +28,12 @@ object MySQLWriter extends Logging {
     rdd.foreachPartition(iter => if (iter.nonEmpty) {
       val cc = MySQLConn(writeConfig)
       cc.withMySqlClientDo(c => {
-        cc.conn.setAutoCommit(false)
+
         iter.foreach(x => {
           fun(x, c)
           //c.addBatch()
         })
         c.executeBatch()
-        cc.conn.commit()
         if (c != null && c.isClosed) c.close()
       })
     })
