@@ -1,7 +1,6 @@
 package com.haooho.spark.Example
 
 import com.haooho.spark.CommonWriter.ClickHouseWriter
-import com.haooho.spark.Example.ESReaderExample.imgObject
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.{Row, SparkSession}
 import org.apache.spark.ml.feature.PCA
@@ -9,6 +8,7 @@ import org.apache.spark.ml.linalg.Vectors
 import org.json4s.DefaultFormats
 import org.json4s.jackson.JsonMethods.parse
 
+// nohup spark-submit --master local[6] --class com.haooho.spark.Example.PCASearchExample --conf "spark.local.dir=/data01/spark/tmp" --conf "spark.executor.extraJavaOptions=-Djava.io.tmpdir=/data01/spark/tmp" --conf "spark.sample.rate=0.001"  --executor-cores 4  --driver-cores 1 --num-executors 1 --driver-memory 24g --executor-memory 5g SparkCommonTools-1.1.jar > sp.out &
 object PCASearchExample extends Logging  {
 
   case class imgV(img_vector: Array[Double],vector: org.apache.spark.ml.linalg.Vector ,goods_id:  java.math.BigDecimal,platform: String,id:String,off:Int,updateTime:java.sql.Timestamp,pow:Double)
@@ -17,21 +17,27 @@ object PCASearchExample extends Logging  {
     val spark = SparkSession
       .builder()
       .appName("ESReaderExample")
-      .master("local[6]")
+//      .master("local[6]")
       .getOrCreate()
 
     val readData = spark.read.format("jdbc")
-      .option("url", "jdbc:mysql://vm:9004/default?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8")
+      .option("url", "jdbc:mysql://172.16.0.82:9004/imageV1?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8")
       .option("dbtable", "images_search")
       .option("user", "default")
       .option("password", "")
       .option("driver", "com.mysql.cj.jdbc.Driver")
+      .option("partitionColumn", "pow")
+      .option("numPartitions", "5000")
+      .option("lowerBound", "18")
+      .option("upperBound", "180")
+      .option("fetchsize", "1000")
       .load()
+    //  1560 │ 220417534769013871
 
     // data.map(_.img_vector)
 
     readData.printSchema()
-    readData.repartition(2000)
+
 
     import spark.implicits._
 
@@ -52,17 +58,22 @@ object PCASearchExample extends Logging  {
       }
     }).filter( _!=null).toDF()
 
-
+    cdd.persist(org.apache.spark.storage.StorageLevel.DISK_ONLY)
+    val rate = spark.conf.get("spark.sample.rate","0.01")
+    val srdd = cdd.sample(rate.toDouble)
+    srdd.persist(org.apache.spark.storage.StorageLevel.DISK_ONLY)
+    srdd.foreach(_ =>{})
+  try{
+//    cdd.repartition(5000)
     val pca = new PCA()
       .setInputCol("vector")
       .setOutputCol("img_vector_out")
       .setK(5)
-      .fit(cdd)
+      .fit(srdd)
 
-    pca.save("./pca.ml")
+    pca.save("/data01/spark/pca.ml")
 
     val result = pca.transform(cdd)
-    result.show(false)
 //
 //
 //    val projected = cdd.map(p => p.copy(img_vector_out = pca.transform(p.vector)))
@@ -71,13 +82,12 @@ object PCASearchExample extends Logging  {
     println(sql)
 
     val reConfig = spark.sparkContext.getConf.setAll(Map(
-      "spark.mysql.url" -> "jdbc:mysql://vm:9004/default?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8",
+      "spark.mysql.url" -> "jdbc:mysql://172.16.0.82:9004/imageV1?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8",
       "spark.mysql.password" -> "",
       "spark.mysql.user" -> "default",
       "spark.mysql.sql" -> sql,
       "spark.mysql.driver" -> "com.mysql.cj.jdbc.Driver"
     ))
-
 
     ClickHouseWriter.MySQLSparkExecute[Row](result.rdd,reConfig,(unit,ps) => {
       val goods_id = unit.getAs[java.math.BigDecimal]("goods_id").toBigInteger
@@ -97,6 +107,13 @@ object PCASearchExample extends Logging  {
       ps.setDouble(8, powOUt)
       ps.execute()
     })
+
+    }catch {
+      case e : Exception =>{ e.printStackTrace() }
+    }
+    cdd.unpersist()
+    srdd.unpersist()
+    spark.sparkContext.clearCallSite()
     spark.stop()
   }
 
