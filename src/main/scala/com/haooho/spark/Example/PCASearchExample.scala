@@ -2,7 +2,7 @@ package com.haooho.spark.Example
 
 import com.haooho.spark.CommonWriter.ClickHouseWriter
 import org.apache.spark.internal.Logging
-import org.apache.spark.sql.{Row, SparkSession}
+import org.apache.spark.sql.{Dataset, Row, SparkSession}
 import org.apache.spark.ml.feature.PCA
 import org.apache.spark.ml.linalg.Vectors
 import org.json4s.DefaultFormats
@@ -60,7 +60,13 @@ object PCASearchExample extends Logging  {
 
     cdd.persist(org.apache.spark.storage.StorageLevel.DISK_ONLY)
     val rate = spark.conf.get("spark.sample.rate","0.01")
-    val srdd = cdd.sample(rate.toDouble)
+    val rb = rate.toDouble
+    var srdd  :Dataset[Row]  = null
+    if(rb < 1){
+       srdd = cdd.sample(rb)
+    }else{
+      srdd = cdd
+    }
     srdd.persist(org.apache.spark.storage.StorageLevel.DISK_ONLY)
     srdd.foreach(_ =>{})
   try{
@@ -71,7 +77,7 @@ object PCASearchExample extends Logging  {
       .setK(5)
       .fit(srdd)
 
-    pca.save("/data01/spark/pca.ml")
+    pca.save("/data01/spark/pca.v2.ml")
 
     val result = pca.transform(cdd)
 //
@@ -90,22 +96,27 @@ object PCASearchExample extends Logging  {
     ))
 
     ClickHouseWriter.MySQLSparkExecute[Row](result.rdd,reConfig,(unit,ps) => {
-      val goods_id = unit.getAs[java.math.BigDecimal]("goods_id").toBigInteger
-      val platform = unit.getAs[String]("platform")
-      val vectors:Array[Double] = unit.getAs[org.apache.spark.ml.linalg.DenseVector]("img_vector_out").toArray
-      val id = unit.getAs[String]("id")
-      val sp2 = vectors.reduce((x,y) => x+ y *y)
-      val powOUt = Math.sqrt(sp2)
 
-      ps.setString(1, id)
-      ps.setString(2,""+goods_id)
-      ps.setDouble(3,unit.getAs[Double]("pow") )
-      ps.setString(4,platform)
-      ps.setInt(5,unit.getAs[Integer]("off") )
-      ps.setString(6, "["+ unit.getAs[scala.collection.mutable.WrappedArray[Double]]("img_vector") .mkString(",")+"]")
-      ps.setString(7, "["+ vectors.mkString(",")+"]")
-      ps.setDouble(8, powOUt)
-      ps.execute()
+      try{
+        val goods_id = unit.getAs[java.math.BigDecimal]("goods_id").toBigInteger
+        val platform = unit.getAs[String]("platform")
+        val vectors:Array[Double] = unit.getAs[org.apache.spark.ml.linalg.DenseVector]("img_vector_out").toArray
+        val id = unit.getAs[String]("id")
+        val sp2 = vectors.reduce((x,y) => x+ y *y)
+        val powOUt = Math.sqrt(sp2)
+
+        ps.setString(1, id)
+        ps.setString(2,""+goods_id)
+        ps.setDouble(3,unit.getAs[Double]("pow") )
+        ps.setString(4,platform)
+        ps.setInt(5,unit.getAs[Integer]("off") )
+        ps.setString(6, "["+ unit.getAs[scala.collection.mutable.WrappedArray[Double]]("img_vector") .mkString(",")+"]")
+        ps.setString(7, "["+ vectors.mkString(",")+"]")
+        ps.setDouble(8, powOUt)
+        ps.execute()
+      }catch {
+        case e : Exception =>{ e.printStackTrace() }
+      }
     })
 
     }catch {
