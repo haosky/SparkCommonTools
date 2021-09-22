@@ -2,14 +2,14 @@ package com.haooho.spark.Example
 
 import com.haooho.spark.CommonWriter.ClickHouseWriter
 import org.apache.spark.internal.Logging
-import org.apache.spark.sql.{Dataset, Row, SparkSession}
-import org.apache.spark.ml.feature.PCA
+import org.apache.spark.ml.feature.{PCA,PCAModel}
 import org.apache.spark.ml.linalg.Vectors
+import org.apache.spark.sql.{Dataset, Row, SparkSession}
 import org.json4s.DefaultFormats
 import org.json4s.jackson.JsonMethods.parse
 
 // nohup spark-submit --master local[6] --class com.haooho.spark.Example.PCASearchExample --conf "spark.local.dir=/data01/spark/tmp" --conf "spark.executor.extraJavaOptions=-Djava.io.tmpdir=/data01/spark/tmp" --conf "spark.sample.rate=0.001"  --executor-cores 4  --driver-cores 1 --num-executors 1 --driver-memory 24g --executor-memory 5g SparkCommonTools-1.1.jar > sp.out &
-object PCASearchExample extends Logging  {
+object PCASearchExampleNoTrain extends Logging  {
 
   case class imgV(img_vector: Array[Double],vector: org.apache.spark.ml.linalg.Vector ,goods_id:  java.math.BigDecimal,platform: String,id:String,off:Int,updateTime:java.sql.Timestamp,pow:Double)
   def main(args:Array[String]): Unit ={
@@ -58,7 +58,7 @@ object PCASearchExample extends Logging  {
       }
     }).filter( _!=null).toDF()
 
-    cdd.persist(org.apache.spark.storage.StorageLevel.DISK_ONLY)
+//    cdd.persist(org.apache.spark.storage.StorageLevel.DISK_ONLY)
     val rate = spark.conf.get("spark.sample.rate","0.01")
     val rb = rate.toDouble
     var srdd  :Dataset[Row]  = null
@@ -70,17 +70,11 @@ object PCASearchExample extends Logging  {
 
   try{
 //    cdd.repartition(5000)
-    val pca = new PCA()
-      .setInputCol("vector")
-      .setOutputCol("img_vector_out")
-      .setK(5)
-      .fit(srdd)
-
-    pca.save("/data01/spark/pca.v2.ml")
-
+    val pca = PCAModel.load("/data01/spark/pca.v2.ml")
     val result = pca.transform(cdd)
-//    val projected = cdd.map(p => p.copy(img_vector_out = pca.transform(p.vector)))
-    val sql =  "INSERT INTO images_search_pca(id,goods_id,pow,platform,off,vectors,out_vectors,out_pow) VALUES (?,?,?,?,?,?,?,?)";
+
+    val table = spark.conf.get("spark.out.table","images_search_pca")
+    val sql = s"INSERT INTO ${table}(id,goods_id,pow,platform,off,vectors,out_vectors,out_pow) VALUES (?,?,?,?,?,?,?,?)";
     println(sql)
 
     val reConfig = spark.sparkContext.getConf.setAll(Map(
@@ -118,7 +112,6 @@ object PCASearchExample extends Logging  {
     }catch {
       case e : Exception =>{ e.printStackTrace() }
     }
-    cdd.unpersist()
     spark.sparkContext.clearCallSite()
     spark.stop()
   }
